@@ -12,10 +12,14 @@ from pyArango.consts import *
 from pyArango.theExceptions import *
 
 class pyArangoTests(unittest.TestCase):
-    
+
     def setUp(self):
-        global ARANGODB_ROOT_USERNAME
-        global ARANGODB_ROOT_PASSWORD
+        if __name__ == "__main__":
+            global ARANGODB_ROOT_USERNAME
+            global ARANGODB_ROOT_PASSWORD
+        else:
+            ARANGODB_ROOT_USERNAME = os.getenv('ARANGODB_ROOT_USERNAME', 'root')
+            ARANGODB_ROOT_PASSWORD = os.getenv('ARANGODB_ROOT_PASSWORD', 'root')
 
         self.conn = Connection(username=ARANGODB_ROOT_USERNAME, password=ARANGODB_ROOT_PASSWORD)
         try :
@@ -56,6 +60,8 @@ class pyArangoTests(unittest.TestCase):
     # @unittest.skip("stand by")
     def test_collection_create_delete(self) :
         col = self.db.createCollection(name = "to_be_erased")
+        self.assertTrue(self.db.hasCollection("to_be_erased"))
+        self.assertFalse(self.db.hasCollection("no_collection_by_that_name"))
         d1 = col.createDocument()
         d1["name"] = "tesla"
         d1.save()
@@ -692,7 +698,7 @@ class pyArangoTests(unittest.TestCase):
         conn = Connection(username="pyArangoTest_tesla", password="newpass")
 
 if __name__ == "__main__" :
-    
+
     # Change default username/password in bash like this:
     # export ARANGODB_ROOT_USERNAME=myUserName
     # export ARANGODB_ROOT_PASSWORD=myPassword
